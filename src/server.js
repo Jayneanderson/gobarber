@@ -1,5 +1,5 @@
 // aqui eu crio o servidor para facilitar os testes
 
-const app = require('./app');
+import app from './app.js'
 
 app.listen(4000);
