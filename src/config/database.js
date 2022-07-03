@@ -4,7 +4,7 @@ module.exports = {
     host: 'localhost',
     username: 'postgres',
     password: 'docker',
-    database: 'gobarder',
+    database: 'gobarber',
     define: {
         timestamps: true,//tabelas created_at e update_at,
         underscored: true, //forma de criar as tabelas no formato snake_case
