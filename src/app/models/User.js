@@ -25,7 +25,11 @@ class User extends Model {
         });
         //retorne o model que acabou de ser inicializado
         return this;
-    }  
+    }
+
+    checkPassword(password) {
+        return bcrypt.compare(password, this.password_hash);
+    }
 }
 
 module.exports = User;
