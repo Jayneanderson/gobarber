@@ -3,7 +3,7 @@
 const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.js');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -12,19 +12,15 @@ module.exports = (req, res, next) => {
 
     const [, token] = authHeader.split(' ');
 
+    if (token) {
+        jwt.verify(token, authConfig.secret, (error, decoded) => {
 
-
-    try {
-        //o id do usuário estará no decode (veja o método sign no SessionController)
-        jwt.verify(token, authConfig.secret, (error, result) => {
-            //como já garanti que este é o usuário mesmo, não preciso passar o id na rota
-            req.userId = result.id;
+            if (error) {
+                return res.status(401).json({ erro: 'Token invalid' });
+            }
+            req.userId = decoded.id;
             return next();
         });
-
-    } catch (err) {
-        return res.status(401).json({ erro: 'Token invalid' });
     }
 
-    return next();
 };

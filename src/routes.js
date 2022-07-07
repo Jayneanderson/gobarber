@@ -12,7 +12,7 @@ routes.post('/sessions', SessionController.store);
 //esta rota não deve sair daqui porque se eu rodar o update, será verificado isso aqui primeiro.
 routes.use(authMiddlware);
 
-routes.put('/users', UserController.update);
+routes.patch('/users', UserController.update);
 
 // module.exports = routes;
 module.exports = routes;
