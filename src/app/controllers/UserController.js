@@ -1,10 +1,21 @@
+const Yup = require('yup');
 const User = require('../models/User.js');
 
 class UserController {
     //recebe os dados do usuário e cria um novo registro
     async store(req, res) {
-        const userExistis = await User.findOne({ where: {email: req.body.email }});
-        
+        const schema = Yup.object().shape({
+            name: Yup.string().required(),
+            email: Yup.string().required(),
+            password: Yup.string().required().min(6),
+        });
+
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails' });
+        }
+
+        const userExistis = await User.findOne({ where: { email: req.body.email } });
+
         if (userExistis) {
             return res.status(400).json({ error: 'User already exists.' });
         }
@@ -20,25 +31,37 @@ class UserController {
     }
 
     async update(req, res) {
-    const { email, oldPassword } = req.body;
-    
-    const user = await User.findByPk(req.userId);
+        const schema = Yup.object().shape({
+            name: Yup.string(),
+            email: Yup.string().email(),
+            oldPassword: Yup.string().min(6),   //se o oldPassword estiver preenchido, significa que o user quer alterar a senha, então diga que é obrigatório
+            password: Yup.string().min(6).when('oldPassword', (oldPassword, field) => oldPassword ? field.required() : field),
+        });
 
-    if (email != user.email) {
-
-        const userExistis = await User.findOne({ where: { email: email }});
-        
-        if (userExistis) {
-            return res.status(400).json({ error: 'User already exists.' });
+        if (!(await schema.isValid(req.body))) {
+            return res.status(400).json({ error: 'Validation fails' });
         }
-    }
+        
+        const { email, oldPassword } = req.body;
 
-    //se o usuário informou a senha antiga e se o usuário informou a senha dele é correta 
-    if (oldPassword && !(await user.checkPassword(oldPassword))) {
-        return res.status(401).json({ erro: 'Password does not match' });
-    }
+        const user = await User.findByPk(req.userId);
 
-    const { id, name, provider } = await user.update(req.body);
+        if (email != user.email) {
+            
+
+            const userExistis = await User.findOne({ where: { email: email } });
+
+            if (userExistis) {
+                return res.status(400).json({ error: 'User already exists.' });
+            }
+        }
+
+        //se o usuário informou a senha antiga e se o usuário informou a senha dele é correta 
+        if (oldPassword && !(await user.checkPassword(oldPassword))) {
+            return res.status(401).json({ erro: 'Password does not match' });
+        }
+
+        const { id, name, provider } = await user.update(req.body);
 
         return res.json({
             id,
