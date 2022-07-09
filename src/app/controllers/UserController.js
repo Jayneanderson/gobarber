@@ -1,4 +1,5 @@
 const Yup = require('yup');
+const { password } = require('../../config/database.js');
 const User = require('../models/User.js');
 
 class UserController {
@@ -6,7 +7,7 @@ class UserController {
     async store(req, res) {
         const schema = Yup.object().shape({
             name: Yup.string().required(),
-            email: Yup.string().required(),
+            email: Yup.string().email().required(),
             password: Yup.string().required().min(6),
         });
 
@@ -36,6 +37,10 @@ class UserController {
             email: Yup.string().email(),
             oldPassword: Yup.string().min(6),   //se o oldPassword estiver preenchido, significa que o user quer alterar a senha, então diga que é obrigatório
             password: Yup.string().min(6).when('oldPassword', (oldPassword, field) => oldPassword ? field.required() : field),
+            //se o usuário tiver alterando a senha, eu quero garantir que o usuário está informando um campo de confirmação
+            confirmPassword: Yup.string().when('password', (password, field) => 
+            password ? field.required().oneOf([Yup.ref('password')]) : field)
+
         });
 
         if (!(await schema.isValid(req.body))) {
