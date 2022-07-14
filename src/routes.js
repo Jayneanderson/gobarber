@@ -1,10 +1,14 @@
 // constar o Router para separar a parte de roteamento do express
 const { Router } = require('express');
+const multer = require('multer');
+const multerConfig = require('./config/multer.js');
+
 const UserController = require('./app/controllers/UserController.js');
 const SessionController = require('./app/controllers/SessionController.js');
 const authMiddlware = require('./app/middlewares/auth.js');
 
 const routes = new Router();
+const upload = multer(multerConfig);
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
@@ -13,6 +17,10 @@ routes.post('/sessions', SessionController.store);
 routes.use(authMiddlware);
 
 routes.patch('/users', UserController.update);
+
+routes.post('/files', upload.single('file'), (req, res) => { 
+    return res.json({ ok: true });
+});
 
 // module.exports = routes;
 module.exports = routes;
