@@ -19,6 +19,8 @@ routes.use(authMiddlware);
 
 routes.patch('/users', UserController.update);
 
+routes.patch('/users', UserController.update);
+
 routes.post('/files', upload.single('file'), FileController.fileUpload);
 
 // module.exports = routes;
