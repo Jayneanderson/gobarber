@@ -21,4 +21,4 @@ class Appointment extends Model {
     }
 }
 
-module.exports = File;
+module.exports = Appointment;
