@@ -29,7 +29,7 @@ class User extends Model {
 
     static associate(models) {
         //pertence a File e é a coluna avatar_id
-        this.belongsTo(models.File, { foreignKey: 'avatar_id' })
+        this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'avatar' });
     }
 
 
