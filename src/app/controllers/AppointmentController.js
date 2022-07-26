@@ -2,9 +2,33 @@ const Yup = require('yup');
 //parse para transformar em date do js e startOfHour serve para pegar apenas a hora em si (sem minutos e segundos)
 const { startOfHour, parseISO, isBefore } = require('date-fns');
 const User = require('../models/User.js');
+const File = require('../models/File.js');
 const Appointment = require('../models/Appointment.js');
 
 class AppointmentController {
+    async index(req, res) {
+        const appointments = await Appointment.findAll({
+            where: { user_id: req.userId, canceled_at: null },
+            order: ['date'],
+            attributes: ['id', 'date'],
+            include: [
+                {
+                    model: User,
+                    as: 'provider',
+                    attributes: ['id', 'name'],
+                    include: [
+                        {
+                            model: File,
+                            as: 'avatar',
+                            attributes: ['id', 'path', 'url'],
+                        },
+                    ],
+                },
+            ],
+        });
+        return res.json(appointments);
+    }
+
     async store(req, res) {
         const schema = Yup.object().shape({
             provider_id: Yup.number().required(),
